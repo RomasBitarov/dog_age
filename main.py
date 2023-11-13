@@ -1,10 +1,17 @@
 import telebot
 from telebot import types
+from configure import TOKEN
 
-bot = telebot.TeleBot('5232923508:AAEQkv5OIrtAdO3i8fCCHGvBvCRTdzfrvfo')
+bot = telebot.TeleBot(TOKEN)
 s = 'Окей, теперь напиши сколько полных лет собаке?'
 rat = 1
 
+def repeat():
+    keyboard = types.InlineKeyboardMarkup()
+    key_yes = types.InlineKeyboardButton(text='да', callback_data='yes')
+    key_no = types.InlineKeyboardButton(text='нет', callback_data='no')
+    keyboard.add(key_yes, key_no)
+    return keyboard
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -49,25 +56,19 @@ def get_text(message):
 def reg_age(message):
     if message.text.isdigit():
         if int(message.text) <= 2:
-            bot.send_message(message.from_user.id, round((int(message.text) * 10.5) * rat))
-            keyboard = types.InlineKeyboardMarkup()
-            key_yes = types.InlineKeyboardButton(text='да', callback_data='yes')
-            key_no = types.InlineKeyboardButton(text='нет', callback_data='no')
-            keyboard.add(key_yes, key_no)
-            bot.send_message(message.from_user.id, 'Узнать возраст еще одной собаки?', reply_markup=keyboard)
-        else:
-            bot.send_message(message.from_user.id, round(((int(message.text) - 2) * 4 + 21) * rat))
-            keyboard = types.InlineKeyboardMarkup()
-            key_yes = types.InlineKeyboardButton(text='да', callback_data='yes')
-            key_no = types.InlineKeyboardButton(text='нет', callback_data='no')
-            keyboard.add(key_yes, key_no)
-            bot.send_message(message.from_user.id, 'Попробовать еще раз?', reply_markup=keyboard)
+            bot.send_message(message.from_user.id, f'Человеческий возраст твоей собаки - {round((int(message.text) * 10.5) * rat)}.\n'
+                                                   f'Узнать возраст еще одной собаки?', reply_markup=repeat())
 
+        else:
+            bot.send_message(message.from_user.id, f'Человеческий возраст твоей собаки - {round(((int(message.text) - 2) * 4 + 21) * rat)}.\n'
+                                                   f'Узнать возраст еще одной собаки?', reply_markup=repeat())
 
 
     else:
         bot.send_message(message.from_user.id, 'Вводи цифры!')
         bot.register_next_step_handler(message, reg_age)
+
+
 
 
 @bot.callback_query_handler(func=lambda call: True)
